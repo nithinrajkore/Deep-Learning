@@ -1,156 +1,447 @@
-# Deep-Learning
+# Deep Learning — ANN, CNN & Gradient Descent
 
-Content: https://www.superdatascience.com/blogs/the-ultimate-guide-to-artificial-neural-networks-ann
+[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)](https://jupyter.org/)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://python.org)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00?logo=tensorflow&logoColor=white)](https://tensorflow.org)
+[![Keras](https://img.shields.io/badge/Keras-2.x-D00000?logo=keras&logoColor=white)](https://keras.io)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.x-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
 
-Deep Learning is a subset of Machine Learning, essentially a neural network with three or more hidden layers.
-These neural networks mimic the behavior of the human brain, allowing it to learn from large amounts of data.
+A comprehensive collection of **deep learning implementations** spanning Artificial Neural Networks (ANN) and Convolutional Neural Networks (CNN), with real-world applications in customer churn prediction, heart failure prediction, and image classification.
 
-Through the process of gradient descent and back propagation, the model adjusts and fits itself for precise accuracy.
+---
 
-### Types of Neural Networks:
-Convolutional NN’s:
-	Used primarily in Computer Vision and image classification applications.
-	Can detect features and patterns within an image like object detection.
-Recurrent NN’s: 
-	Are typically used in Natural Language processing and speech recognition applications as it leverages sequential and time-series data.
+## Table of Contents
 
-### Neuron:
-  Basic building block of Artificial Neural Networks.
-	The neuron has multiple inputs which may be either an input or a output from preceding neuron connected through synapse. These synapse carry weights. 
-	In hidden layer neurons, The inputs from the preceding layers are multiplied by their corresponding weights and they are all added up. Then an activation function is applied on the resulting sum.       This value is passed onto either as output value or as an input to the next neuron. These weights are randomly initialized, but later are tuned during training process using Gradient Descent and Back Propagation techniques.  
+1. [Repository Structure](#repository-structure)
+2. [Notebooks Overview](#notebooks-overview)
+3. [Datasets](#datasets)
+4. [Architecture 1: Artificial Neural Network (ANN)](#architecture-1-artificial-neural-network-ann)
+   - [Theory](#ann-theory)
+   - [Mathematical Formulation](#ann-math)
+   - [Activation Functions](#activation-functions)
+   - [ANN: Bank Churn Prediction](#ann-bank-churn-prediction)
+   - [ANN: Heart Failure Prediction](#ann-heart-failure-prediction)
+5. [Architecture 2: Gradient Descent — Simple NN](#architecture-2-gradient-descent--simple-nn)
+6. [Architecture 3: Convolutional Neural Network (CNN)](#architecture-3-convolutional-neural-network-cnn)
+   - [Theory](#cnn-theory)
+   - [CNN: Cat vs Dog Classification](#cnn-cat-vs-dog-classification)
+   - [CNN: Rock Paper Scissors Detection](#cnn-rock-paper-scissors-detection)
+7. [Model Comparison](#model-comparison)
+8. [Tech Stack](#tech-stack)
+9. [Getting Started](#getting-started)
+10. [Key Concepts Glossary](#key-concepts-glossary)
+11. [References](#references)
 
-<img width="1400" height="700" alt="image" src="https://github.com/user-attachments/assets/77186b20-12c7-4808-96a0-84a24010f885" />
+---
 
+## Repository Structure
+
+```
+Deep-Learning/
+├── README.md
+├── Artificial Neural Networks.ipynb            ← ANN: Bank churn prediction
+├── Heart Failure Prediction ANN.ipynb          ← ANN: Medical classification
+├── Gradient Descent - Simple NN.ipynb          ← Gradient descent fundamentals
+├── Convolutional NN-Cat_Dog_Classification.ipynb  ← CNN: Binary image classification
+├── CNN_Rock_Paper_Scissor_Detection.ipynb      ← CNN: Multi-class gesture detection
+├── Churn_Modelling.csv                         ← Bank customer churn dataset
+└── heart_failure_clinical_records_dataset.csv  ← Heart failure clinical data
+```
+
+| Notebook | Architecture | Task | Dataset |
+|----------|-------------|------|---------|
+| `Artificial Neural Networks.ipynb` | ANN (Dense) | Binary classification | `Churn_Modelling.csv` |
+| `Heart Failure Prediction ANN.ipynb` | ANN (Dense) | Binary classification | `heart_failure_clinical_records_dataset.csv` |
+| `Gradient Descent - Simple NN.ipynb` | Simple NN | Regression / demo | Synthetic |
+| `Convolutional NN-Cat_Dog_Classification.ipynb` | CNN | Binary image classification | Cat/Dog images |
+| `CNN_Rock_Paper_Scissor_Detection.ipynb` | CNN | Multi-class classification | RPS hand gestures |
+
+---
+
+## Datasets
+
+### Churn_Modelling.csv
+
+| Property | Value |
+|----------|-------|
+| Rows | 10,000 bank customers |
+| Features | 14 (CreditScore, Geography, Gender, Age, Tenure, Balance, NumOfProducts, HasCrCard, IsActiveMember, EstimatedSalary) |
+| Target | `Exited` (1 = churned, 0 = stayed) |
+| Churn rate | ~20% |
+| Source | Kaggle — Bank Customer Churn Prediction |
+
+### heart_failure_clinical_records_dataset.csv
+
+| Property | Value |
+|----------|-------|
+| Rows | 299 patients |
+| Features | 12 clinical features (age, anaemia, creatinine_phosphokinase, diabetes, ejection_fraction, high_blood_pressure, platelets, serum_creatinine, serum_sodium, sex, smoking, time) |
+| Target | `DEATH_EVENT` (1 = died, 0 = survived) |
+| Death rate | ~32% |
+| Source | Kaggle / UCI — Heart Failure Clinical Records |
+
+---
+
+## Architecture 1: Artificial Neural Network (ANN)
+
+### ANN Theory
+
+An ANN is a computational model inspired by the biological brain, composed of layers of interconnected nodes (neurons). Each neuron computes a weighted sum of its inputs, applies a non-linear activation function, and passes the result to the next layer.
+
+**Architecture for classification:**
+
+```
+Input Layer → Hidden Layer 1 → Hidden Layer 2 → Output Layer
+(n features)    (units, ReLU)     (units, ReLU)     (1 unit, Sigmoid)
+```
+
+### ANN Math
+
+**Forward pass through a single neuron:**
+
+$$z^{(l)} = W^{(l)} a^{(l-1)} + b^{(l)}$$
+
+$$a^{(l)} = g^{(l)}\!\left(z^{(l)}\right)$$
+
+where $W^{(l)}$ are weights, $b^{(l)}$ is the bias vector, and $g^{(l)}$ is the activation function at layer $l$.
+
+**Loss function (Binary Cross-Entropy):**
+
+$$\mathcal{L} = -\frac{1}{m} \sum_{i=1}^{m} \left[ y^{(i)} \log\hat{y}^{(i)} + (1-y^{(i)}) \log(1-\hat{y}^{(i)}) \right]$$
+
+**Backpropagation (gradient of loss w.r.t. weights):**
+
+$$\frac{\partial \mathcal{L}}{\partial W^{(l)}} = \frac{1}{m} \delta^{(l)} (a^{(l-1)})^T$$
+
+$$\delta^{(l)} = (W^{(l+1)})^T \delta^{(l+1)} \odot g'^{(l)}(z^{(l)})$$
+
+**Gradient descent weight update:**
+
+$$W^{(l)} \leftarrow W^{(l)} - \alpha \frac{\partial \mathcal{L}}{\partial W^{(l)}}$$
+
+where $\alpha$ is the learning rate.
 
 ### Activation Functions
-Without activation functions, the entire neural network would behave like a linear model, regardless of its depth. Linear combinations of linear functions result in another linear function. Activation functions introduce non-linearity into the network, enabling it to learn and approximate complex, non-linear relationships in data.
-Threshold Function:
-Range - 0 or 1
 
-<img width="975" height="472" alt="image" src="https://github.com/user-attachments/assets/b52b5363-458b-46b4-b63c-ff69f776903f" />
+| Function | Formula | Range | Used In |
+|----------|---------|-------|---------|
+| **ReLU** | $\max(0, z)$ | $[0, \infty)$ | Hidden layers |
+| **Sigmoid** | $\sigma(z) = 1/(1+e^{-z})$ | $(0, 1)$ | Binary output layer |
+| **Softmax** | $e^{z_i}/\sum_j e^{z_j}$ | $(0, 1)$, sums to 1 | Multi-class output layer |
+| **Tanh** | $(e^z-e^{-z})/(e^z+e^{-z})$ | $(-1, 1)$ | Hidden layers (older) |
 
+---
 
-### Sigmoid Function: Range: [0,1], gives the probability of X = 1 i.e., P( X = 1 )
+### ANN: Bank Churn Prediction
 
-<img width="1200" height="630" alt="image" src="https://github.com/user-attachments/assets/ca83a7fb-2267-4557-9660-5b218c3fba7b" />
+**Goal:** Predict which customers will leave the bank next month.
 
-### Rectifier Function (ReLU): Range: [0,INF)
+**Preprocessing:**
+```python
+# Encode Geography (France/Spain/Germany) and Gender (Male/Female)
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler
 
-<img width="850" height="409" alt="image" src="https://github.com/user-attachments/assets/434085e4-48be-43fd-8d44-7fb02d6c4bcb" />
+# Label encode Gender
+le = LabelEncoder()
+X[:, 2] = le.fit_transform(X[:, 2])
 
-### Hyperbolic tangent Activation Function: Range: [-1 , 1]
+# OneHot encode Geography
+ct = ColumnTransformer([('encoder', OneHotEncoder(), [1])], remainder='passthrough')
+X = np.array(ct.fit_transform(X))
 
-<img width="846" height="449" alt="image" src="https://github.com/user-attachments/assets/fd9d8b4b-d166-4d9a-b618-a5f1f11ed988" />
+# Scale features
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test  = sc.transform(X_test)
+```
 
-### Linear or identity Activation function: Range: ( -INF, INF)
+**Model Architecture:**
 
-<img width="867" height="564" alt="image" src="https://github.com/user-attachments/assets/cea0070a-987f-4324-acfb-2089fad3819b" />
+| Layer | Type | Units | Activation |
+|-------|------|-------|------------|
+| Input | Dense | 11 features | — |
+| Hidden 1 | Dense | 6 | ReLU |
+| Hidden 2 | Dense | 6 | ReLU |
+| Output | Dense | 1 | Sigmoid |
 
-### Leaky ReLU:
+```python
+import tensorflow as tf
 
-<img width="690" height="488" alt="image" src="https://github.com/user-attachments/assets/9fad0d31-1bd1-4750-be31-12a302e163c8" />
+# Build ANN
+ann = tf.keras.models.Sequential([
+    tf.keras.layers.Dense(units=6, activation='relu'),
+    tf.keras.layers.Dense(units=6, activation='relu'),
+    tf.keras.layers.Dense(units=1, activation='sigmoid')
+])
 
-### Softmax Activation Function:
-	Used for Multi-class classification, where as in binary classification we can use sigmoid function.
+# Compile
+ann.compile(
+    optimizer='adam',
+    loss='binary_crossentropy',
+    metrics=['accuracy']
+)
 
-Without activation functions, the entire neural network would behave like a linear model, regardless of its depth. Linear combinations of linear functions result in another linear function. Activation functions introduce non-linearity into the network, enabling it to learn and approximate complex, non-linear relationships in data.
-Activation functions are crucial for the training process of neural networks, specifically in the back propagation algorithm. Non-linear activation functions introduce gradients, allowing the optimization algorithm (e.g., gradient descent) to adjust the weights during training. This enables the network to learn and adapt to the input data by minimizing the error or loss function.
-Activation functions help in normalizing the output of neurons, preventing them from growing too large or too small. This can stabilize the learning process and prevent issues like vanishing gradients or exploding gradients, which can hinder the convergence of the training algorithm.
+# Train
+ann.fit(X_train, y_train, batch_size=32, epochs=100)
 
-### How do Neural Networks Work?
+# Evaluate
+y_pred = (ann.predict(X_test) > 0.5).astype(int)
+```
 
+**Model Parameters:**
 
-### Cost Function
-	It is a measure of “how good” a neural network did with respect to the given training sample and the expected output.
+| Hyperparameter | Value |
+|----------------|-------|
+| Optimizer | Adam |
+| Loss | Binary Cross-Entropy |
+| Batch size | 32 |
+| Epochs | 100 |
+| Threshold | 0.5 |
 
-Cost Function can be represented as <img width="222" height="50" alt="image" src="https://github.com/user-attachments/assets/d9740ec6-3817-47d3-b4cd-1145bfad9036" />
+---
 
+### ANN: Heart Failure Prediction
 
-	W - NN’s Weights 
-	B - NN’s Biases
-	S - input of single training sample
-	E - desired output of that training sample
+**Goal:** Predict patient mortality from heart failure using 12 clinical features.
 
-In back propagation, the error of the output layer is computed using the cost function, via
+**Architecture:** Similar sequential ANN, adapted for the medical dataset with 12 input features → 2 hidden Dense layers with ReLU → 1 sigmoid output → Binary cross-entropy loss.
 
-<img width="240" height="100" alt="image" src="https://github.com/user-attachments/assets/91f14108-a2f5-4b86-97fe-035442a08af7" />
+```python
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
 
-### Cost Function Requirements:
-To be used in back propagation, 
-1. The Cost function C must be able to be written as an average over cost functions Cx for individual training samples, x. 
+dataset = pd.read_csv('heart_failure_clinical_records_dataset.csv')
+X = dataset.drop('DEATH_EVENT', axis=1).values
+y = dataset['DEATH_EVENT'].values
 
-<img width="224" height="104" alt="image" src="https://github.com/user-attachments/assets/cff61778-4057-4979-b562-0c6535ecad25" />
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-It states that, the cost function is an average of the differences b/w the predicted/ model output and the actual value for all training samples.
-2. The cost function must not be dependent on any activation values of the neural network besides the output values. This states that, the cost function is a function of model outputs and the actual values, therefore, it only depends on the model output and not on any intermediate values generated in the hidden layers.
-					      
-                C = C ( y , y^ )
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test  = sc.transform(X_test)
 
-### Convolutional Neural Networks
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(64, activation='relu', input_shape=(12,)),
+    tf.keras.layers.Dropout(0.3),
+    tf.keras.layers.Dense(32, activation='relu'),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(1, activation='sigmoid')
+])
 
-Gradient-based learning applied to document recognition: https://ieeexplore.ieee.org/document/726791
-Introduction to Convolutional Neural Networks: https://cs.nju.edu.cn/wujx/paper/CNN.pdf
-http://cs.nju.edu.cn/wujx/paper/CNN/pdf
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.1)
+```
 
-### Convolution:
-We have a filter/ kernel/ feature detector or size N x N ( N can be 3 or 5 or 7 it depends)
-By using this kernel, we do the below operation.
+---
 
-<img width="1283" height="617" alt="image" src="https://github.com/user-attachments/assets/1cda67a4-e1ef-4a51-bdb6-89801bd1d138" />
+## Architecture 2: Gradient Descent — Simple NN
 
-The steps at which the kernel is moved is called stride.
-The image on the right is called Feature Map/ activation map/ convolved feature.
-The primary purpose of convolution is to find features in your image using the feature detector/ kernel.
+**Goal:** Visualize how gradient descent optimizes a simple neural network, building intuition for backpropagation.
 
-### ReLU Layer:
-To increase non linearity we use relu layer.
+**Key concepts demonstrated:**
+- Forward propagation (compute predictions)
+- Loss calculation (MSE)
+- Backward propagation (compute gradients)
+- Weight update via gradient descent
 
-Understanding Convolutional Neural Networks with a Mathematical Model by C.C Jay Kuo:  https://www.sciencedirect.com/science/article/abs/pii/S1047320316302267
+$$\mathcal{L}(\theta) = \frac{1}{2m} \sum_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)})^2$$
 
-### Max Pooling:
-Introduces spacial invariances.
-Prevents over-fitting
+$$\theta := \theta - \alpha \nabla_\theta \mathcal{L}(\theta)$$
 
+The notebook visually traces how weights evolve epoch-by-epoch as the loss decreases.
 
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/48ba3462-289f-4cbb-999d-5e0a80d57125" />
+---
 
+## Architecture 3: Convolutional Neural Network (CNN)
 
-Evaluation of pooling operations in Convolutional Architecture for object recognition by Domino Scherer : https://link.springer.com/chapter/10.1007/978-3-642-15825-4_10
+### CNN Theory
 
+CNNs are specialized for processing grid-structured data (images). They apply learned **convolutional filters** that detect spatial features (edges, textures, shapes) regardless of position.
 
-<img width="1087" height="355" alt="image" src="https://github.com/user-attachments/assets/c2ae744c-26da-4ce4-8a9e-6e1e0371e141" />
+**Key layers:**
 
+| Layer | Operation | Purpose |
+|-------|-----------|---------|
+| **Conv2D** | Convolution with learnable filters | Extract spatial features (edges, patterns) |
+| **MaxPooling2D** | Take max value in each pool window | Downsample, reduce spatial size |
+| **Flatten** | Reshape 3D → 1D | Connect to Dense layers |
+| **Dense** | Fully connected | Classification decision |
+| **Dropout** | Randomly zero activations | Regularization against overfitting |
 
-### Flatten:
-Convert each pooled layer into one dimensional array to further feed it to the artificial Neural network.
+**Convolution operation:**
 
-<img width="1665" height="724" alt="image" src="https://github.com/user-attachments/assets/c1e96b55-54d2-4531-8110-2317ad04df73" />
+$$(f * g)[n, m] = \sum_{i} \sum_{j} f[i, j] \cdot g[n-i, m-j]$$
 
-### Fully Connected Layer:
-The 9 Deep Learning Papers You Need To Know About (Understanding CNNs Part 3): https://adeshpande3.github.io/The-9-Deep-Learning-Papers-You-Need-To-Know-About.html
+Feature map size after convolution:
+$$\text{out\_size} = \left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1$$
 
-<img width="2500" height="846" alt="image" src="https://github.com/user-attachments/assets/ef66908a-455d-40e2-9d1e-565990b2284b" />
+where $n$ = input size, $p$ = padding, $k$ = kernel size, $s$ = stride.
 
-### SoftMax & Cross Entropy:
-Softmax is used to convert output values of output neurons into probabilities.
-It is often used with cross entropy loss function, which calculates loss in each iteration, and helps back propagation to adjust weights and feature maps. Cross entropy is preferred than MSE or basic classification error metrics as it would leverage the log function to scale up the minute errors during the initial iterations of back propagation, and helps to attain stability swiftly.
+---
 
+### CNN: Cat vs Dog Classification
 
-Further References: 
-1. List of Cost functions used in neural networks alongside applications:
-https://github.com/Bladefidz/machine-learning/blob/master/literatures/neural%20networks/a-list-of-cost-functions-used-in-neural-networks-alongside-applications.pdf
+**Goal:** Binary image classification — cat (0) or dog (1).
 
-2. Gradient Descent:
-https://iamtrask.github.io/2015/07/12/basic-python-network/
+```
+Input (64×64×3 RGB)
+  ↓
+Conv2D(32, 3×3, ReLU)  →  MaxPooling2D(2×2)
+  ↓
+Conv2D(32, 3×3, ReLU)  →  MaxPooling2D(2×2)
+  ↓
+Flatten
+  ↓
+Dense(128, ReLU)
+  ↓
+Dense(1, Sigmoid)         ← Binary output
+```
 
-3. A friendly introduction to cross entropy loss, by Rob DiPietro:
-https://rdipietro.github.io/friendly-intro-to-cross-entropy-loss/
+```python
+import tensorflow as tf
 
-5. How to implement a neural network Intermezzo 2, by Peter Roelants: 
-https://peterroelants.github.io/posts/neural-network-implementation-part01/
-https://peterroelants.github.io/posts/cross-entropy-softmax/
+# Data augmentation to prevent overfitting
+train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True
+)
+test_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 
-6. Ultimate Guide for CNN:
-https://www.superdatascience.com/blogs/the-ultimate-guide-to-convolutional-neural-networks-cnn
+training_set = train_datagen.flow_from_directory(
+    'dataset/training_set', target_size=(64, 64), batch_size=32, class_mode='binary'
+)
+test_set = test_datagen.flow_from_directory(
+    'dataset/test_set', target_size=(64, 64), batch_size=32, class_mode='binary'
+)
 
- 
+# Build CNN
+cnn = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(filters=32, kernel_size=3, activation='relu', input_shape=[64, 64, 3]),
+    tf.keras.layers.MaxPool2D(pool_size=2, strides=2),
+    tf.keras.layers.Conv2D(filters=32, kernel_size=3, activation='relu'),
+    tf.keras.layers.MaxPool2D(pool_size=2, strides=2),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(units=128, activation='relu'),
+    tf.keras.layers.Dense(units=1, activation='sigmoid')
+])
+
+cnn.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+cnn.fit(x=training_set, validation_data=test_set, epochs=25)
+```
+
+| Hyperparameter | Value |
+|----------------|-------|
+| Input size | 64 × 64 × 3 |
+| Filters | 32 per Conv2D layer |
+| Kernel size | 3 × 3 |
+| Pool size | 2 × 2 |
+| Dense units | 128 |
+| Epochs | 25 |
+| Loss | Binary cross-entropy |
+
+---
+
+### CNN: Rock Paper Scissors Detection
+
+**Goal:** Multi-class classification of hand gestures — Rock (0), Paper (1), or Scissors (2).
+
+Same CNN architecture as Cat/Dog, but with `class_mode='categorical'` and `softmax` output:
+
+```python
+# Output layer for multi-class
+tf.keras.layers.Dense(units=3, activation='softmax')  # 3 classes
+
+# Loss function for multi-class
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+```
+
+---
+
+## Model Comparison
+
+| Model | Task | Architecture | Key Layers | Optimizer | Loss | Accuracy |
+|-------|------|-------------|-----------|-----------|------|----------|
+| ANN (Churn) | Binary classification | 3-layer Dense | Dense(6), Dense(6), Dense(1, sigmoid) | Adam | Binary CE | ~86% |
+| ANN (Heart Failure) | Binary classification | 4-layer Dense + Dropout | Dense(64), Dropout(0.3), Dense(32), Dense(1) | Adam | Binary CE | ~80% |
+| CNN (Cat/Dog) | Binary image classification | 2×Conv+Pool + Dense | Conv2D(32), MaxPool2D, Dense(128) | Adam | Binary CE | ~80% |
+| CNN (RPS) | Multi-class image | 2×Conv+Pool + Dense | Conv2D(32), MaxPool2D, Dense(3, softmax) | Adam | Categorical CE | ~95% |
+| Simple NN | Regression/demo | Manual | Single hidden layer | Gradient descent | MSE | — |
+
+---
+
+## Tech Stack
+
+| Library | Version | Usage |
+|---------|---------|-------|
+| Python | 3.x | Core language |
+| TensorFlow | 2.x | Deep learning framework |
+| Keras | 2.x (via TF) | High-level ANN/CNN building API |
+| NumPy | 1.x | Array operations |
+| Pandas | 1.x | Tabular data loading |
+| scikit-learn | 1.x | Preprocessing, metrics, train-test split |
+| Matplotlib | 3.x | Training curves, confusion matrix |
+| Jupyter | Latest | Interactive notebook environment |
+
+---
+
+## Getting Started
+
+```bash
+# 1. Clone
+git clone https://github.com/nithinrajkore/Deep-Learning.git
+cd Deep-Learning
+
+# 2. Install dependencies
+pip install tensorflow numpy pandas scikit-learn matplotlib jupyter
+
+# 3. Run ANN — Bank Churn
+jupyter notebook "Artificial Neural Networks.ipynb"
+
+# 4. Run ANN — Heart Failure
+jupyter notebook "Heart Failure Prediction ANN.ipynb"
+
+# 5. Run CNN — Cat vs Dog
+jupyter notebook "Convolutional NN-Cat_Dog_Classification.ipynb"
+
+# 6. Run CNN — Rock Paper Scissors
+jupyter notebook "CNN_Rock_Paper_Scissor_Detection.ipynb"
+```
+
+---
+
+## Key Concepts Glossary
+
+| Term | Definition |
+|------|------------|
+| **Neuron** | Computational unit: weighted sum of inputs → activation function → output |
+| **Layer** | Collection of neurons processing input simultaneously |
+| **Activation Function** | Non-linear function applied to neurons output (ReLU, Sigmoid, Softmax) |
+| **Forward Propagation** | Computing predictions by passing inputs through the network |
+| **Backpropagation** | Computing gradients of loss w.r.t. weights via the chain rule |
+| **Gradient Descent** | Optimization algorithm that updates weights in the direction of steepest loss descent |
+| **Adam** | Adaptive Moment Estimation optimizer — combines momentum and RMSprop |
+| **Batch Size** | Number of samples processed per gradient update |
+| **Epoch** | One full pass through the entire training dataset |
+| **Dropout** | Regularization: randomly deactivates neurons during training to prevent overfitting |
+| **Convolution** | Sliding a learnable filter over an image to detect local spatial features |
+| **Pooling** | Downsampling operation that reduces spatial dimensions |
+| **Feature Map** | Output of a convolutional layer — spatial activation pattern for a filter |
+| **Binary Cross-Entropy** | Loss for binary classification: $-y\log\hat{y}-(1-y)\log(1-\hat{y})$ |
+| **Categorical Cross-Entropy** | Loss for multi-class: $-\sum_k y_k \log \hat{y}_k$ |
+| **Data Augmentation** | Artificially expand training data via rotations, flips, zooms |
+
+---
+
+## References
+
+1. LeCun, Y., Bengio, Y., & Hinton, G. (2015). *Deep Learning*. Nature, 521, 436–444.
+2. Goodfellow, I., Bengio, Y., & Courville, A. (2016). *Deep Learning*. MIT Press.
+3. Chollet, F. (2021). *Deep Learning with Python* (2nd ed.). Manning.
+4. TensorFlow/Keras: [https://www.tensorflow.org/api_docs/python/tf/keras](https://www.tensorflow.org/api_docs/python/tf/keras)
+5. Dataset (Churn): [Kaggle — Churn Modelling](https://www.kaggle.com/)
+6. Dataset (Heart Failure): [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/Heart+failure+clinical+records)
